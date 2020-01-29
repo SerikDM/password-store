@@ -45,6 +45,13 @@ git_commit() {
 	[[ -n $INNER_GIT_DIR ]] || return
 	[[ $(git -C "$INNER_GIT_DIR" config --bool --get pass.signcommits) == "true" ]] && sign="-S"
 	git -C "$INNER_GIT_DIR" commit $sign -m "$1"
+	git_try_pull_push
+}
+git_try_pull_push() {
+	if git -C "$INNER_GIT_DIR" config remote.origin.url > /dev/null; then
+		git -C "$INNER_GIT_DIR" pull --rebase=merges origin master
+		git -C "$INNER_GIT_DIR" push origin master
+	fi
 }
 yesno() {
 	[[ -t 0 ]] || return 0
